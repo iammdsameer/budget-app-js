@@ -125,7 +125,15 @@ var UIController = (function () {
     percentageLabel: ".budget__expenses--percentage",
     eventContainer: ".container",
     expensesPercentageLabel: ".item__percentage",
+    dateLabel: ".budget__title--month",
   };
+
+  var nodeListForEach = function (list, callback) {
+    for (var i = 0; i < list.length; i++) {
+      callback(list[i], i);
+    }
+  };
+
   var formatNumber = function (num, type) {
     var numSplit, num, int, dec;
     num = Math.abs(num).toFixed(2);
@@ -184,11 +192,6 @@ var UIController = (function () {
     },
     displayPercentages: function (percentages) {
       var fields = document.querySelectorAll(DOM.expensesPercentageLabel);
-      var nodeListForEach = function (list, callback) {
-        for (var i = 0; i < list.length; i++) {
-          callback(list[i], i);
-        }
-      };
 
       nodeListForEach(fields, function (current, index) {
         if (percentages[index] > 0) {
@@ -221,6 +224,41 @@ var UIController = (function () {
         document.querySelector(DOM.percentageLabel).textContent = "---";
       }
     },
+    changedType: function () {
+      var fields;
+
+      fields = document.querySelectorAll(
+        DOM.inputType + "," + DOM.inputDescription + "," + DOM.inputValue
+      );
+
+      nodeListForEach(fields, function (current) {
+        current.classList.toggle("red-focus");
+      });
+
+      document.querySelector(DOM.inputSubmit).classList.toggle("red");
+    },
+
+    displayCurrentMonth: function () {
+      var now, year, months, month;
+      now = new Date();
+      year = now.getFullYear();
+      months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
+      ];
+      month = months[now.getMonth()];
+      document.querySelector(DOM.dateLabel).textContent = month + " " + year;
+    },
   };
 })();
 
@@ -231,6 +269,10 @@ var controller = (function (budgetCtrl, uiCtrl) {
     document
       .querySelector(DOM.inputSubmit)
       .addEventListener("click", ctrlAddItem);
+
+    document
+      .querySelector(DOM.inputType)
+      .addEventListener("change", UIController.changedType);
 
     document.addEventListener("keypress", function (event) {
       // Check if the keypress is a Return Key.
@@ -310,6 +352,7 @@ var controller = (function (budgetCtrl, uiCtrl) {
   return {
     init: function () {
       console.log("App Started!");
+      UIController.displayCurrentMonth();
       UIController.displayBudget({
         budget: 0,
         percentage: -1,
